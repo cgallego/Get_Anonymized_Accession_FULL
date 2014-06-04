@@ -1,0 +1,2 @@
+3008479	[Errno 13] Permission denied: '3008479'
+3008479	Series is already in table by UID
