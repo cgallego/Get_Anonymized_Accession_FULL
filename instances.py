@@ -18,7 +18,6 @@ def objects(examID,exam_loc):
     Returns a list of Series's objects. 
     """
     series,filenames,user=query.harddrive(exam_loc) #needs dicom files only
-    print series
     objects=[]
     
     print 'Creating objects...'

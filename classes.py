@@ -138,12 +138,13 @@ class Series():
                     fats=1
                 else:
                     pass
-                if not fats:
-                    fats=0
+            if not fats:
+                fats=0
         if process:      
             fats=None
-            self.fat=fats
-
+        
+        self.fat=fats
+            
         return     
        
     def MRType(self):
@@ -234,8 +235,9 @@ class Series():
     
         os.chdir(self.loc)
         data=dicom.read_file(self.filename)
-        if data.has_key(name):
+        if data.__contains__(name): # before if data.has_key(name): changed info due to port change
             info=data.__getattr__(name)
+                    
         #checks if tag is in dictionaries (tags1 and tags2)
         elif name in dictionaries.tags1:
             try:

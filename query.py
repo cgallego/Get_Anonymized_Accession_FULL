@@ -15,28 +15,24 @@ def queries(examID):
     series.
     Takes examID as a string.
     Note: Uses DCMTK. Also, the command lines have been written for Windows 
-    Operating System.  """   
-    
-    os.chdir(data_loc)    
+    Operating System.
+    """      
+    os.chdir(data_loc)
     
     if os_type=='Windows':
         #gets InstanceUID, SeriesDescription, and SeriesUID for each series
-        cmd=program_loc+os.sep+'findscu -v -S -k 0008,0018="" -k 0008,1030="" -k 0008,103e="" \
-            -k 0008,0050='+examID+' -k 0020,000e="" -k 0008,0052="SERIES" \
-            -k 0020,000D="" -k 0020,000e="" -k 0020,1002="" -k 0008,0070="" \
-            -aet '+my_aet+' -aec '+remote_aet+' '+remote_IP+' '+remote_port+' > querydata'+examID
-      
+        cmd=program_loc+os.sep+'findscu -S -k 0008,0018="" -k 0008,103e="" -k 0020,000e="" '+\
+            '-k 0008,0050='+examID+' -k 0008,0052="SERIES" -aet '+my_aet+\
+            ' -aec '+remote_aet+' '+remote_IP+' '+remote_port+' > querydata'+\
+            examID
     elif os_type=='Linux':
-        cmd=program_loc+os.sep+'findscu -v -S -k 0009,1002="" -k 0008,1030="" -k 0008,103e="" -k 0010,0010="" -k 0010,0020="" \
-            -k 0008,0020="" -k 0008,0050='+examID+' -k 0020,0011="" -k 0008,0052="SERIES" \
-            -k 0020,000D="" -k 0020,000e="" -k 0020,1002="" -k 0008,0070="" \
-            -aet '+my_aet+' -aec '+remote_aet+' '+remote_IP+' '+remote_port+' 2> querydata'+examID 
-      
-    print 'Searching Accession...'
-    print examID
+        cmd=program_loc+os.sep+'findscu -S -k 0008,0018="" -k 0008,103e="" -k 0020,000e="" '+\
+            '-k 0008,0050='+examID+' -k 0008,0052="SERIES" -aet '+my_aet+\
+            ' -aec '+remote_aet+' '+remote_IP+' '+remote_port+\
+            ' 2> querydata'+examID
+    print 'Searching...'
     os.system(cmd)
-    print cmd
-    
+
     data=open('querydata'+examID)
     
     if not(os.path.exists(str(examID))):
@@ -45,22 +41,19 @@ def queries(examID):
     
     cmd2='Empty'
     for i in data:
-        if '(0008,0018) UI (no value available)' in i: 
-            pass
-        
-        elif '0008,0018' in i:        #0008,0018=InstanceUID
+        if '0020,000e' in i:        #0008,0018=InstanceUID
             instanceUID=str(i[i.find('[')+1:i.find(']')])
-            print instanceUID
             #moves files of given InstanceUID
-            cmd2=program_loc+os.sep+'movescu -S -v +P '+my_port+' -k 0008,0018="'+instanceUID+\
+            cmd2=program_loc+os.sep+'movescu -S +P '+my_port+' -k 0020,000e="'+instanceUID+\
                 '" -k 0008,0052="IMAGE" -aec '+remote_aet+' -aet '+my_aet+\
                 ' -aem '+my_aet+' '+remote_IP+' '+remote_port
             os.system(cmd2)
-       
+            print cmd2
         else:
             pass
 
     if cmd2=='Empty':
+        print 'Empty'
         new=open('No Data.txt','a')
         new.write('['+str(examID)+'] \n')
 
@@ -135,35 +128,38 @@ def harddrive(exam_loc):
     """
     os.chdir(exam_loc)
     filenames=os.listdir(exam_loc)
+    
     usable_files=[]
     UIDs=[]                  #keeps track of the UIDs already used
     series=[]
     counters={}
   
     for x in filenames:
-        data=dicom.read_file(x, force=True)
-        print data
-        if not usable_files:
-            usable_files.append(x)
-            UIDs.append(data.SeriesInstanceUID)
-            series.append(data.SeriesDescription)
-            counters[data.SeriesInstanceUID]=0
-        for i in UIDs:
-            ID=data.SeriesInstanceUID
-            if ID not in UIDs:
+        if x != 'No Data.txt':
+            data=dicom.read_file(x)
+            if not usable_files:
                 usable_files.append(x)
-                UIDs.append(ID)
-                #in case Series Description isn't a keyword
-                if data.has_key('SeriesDescription'):
-                    series.append(data.SeriesDescription)
-                else:
-                    series.append(data['0008','103e'].value)
-                counters[ID]=0
-            elif ID==i:
-                counters[ID]+=1
+                UIDs.append(data['0020','000e'].value)
+                series.append(data['0008','103e'].value)
+                counters[data.SeriesInstanceUID]=0
+            for i in UIDs:
+                ID=data.SeriesInstanceUID
+                if ID not in UIDs:
+                    usable_files.append(x)
+                    UIDs.append(ID)
+                    #in case Series Description isn't a keyword
+                    if data.has_key('SeriesDescription'):
+                        series.append(data.SeriesDescription)
+                    else:
+                        series.append(data['0008','103e'].value)
+                    counters[ID]=0
+                elif ID==i:
+                    counters[ID]+=1
     user=0
     for i in UIDs:
         if counters[i]>1:
             user=1
             break
+    print series
+
     return series, usable_files, user
