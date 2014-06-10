@@ -41,9 +41,14 @@ def update_table(PatientID, StudyID, accession):
     exam_loc=data_loc+'/'+accessnum
     query.queries(accessnum)  
     
-    SQL.run_code(accessnum, exam_loc)
     try:
         SQL.run_code(accessnum, exam_loc)
+        try:
+            if os.path.isdir(exam_loc):
+                shutil.rmtree(exam_loc)    #os.rmdir(StudyNo)    #remove    # removedirs
+        except ValueError:
+            print "Deleting a Directory is problematic."    
+            
     except Exception as e:
         os.chdir(program_loc)
         fil=open('Errors.txt','a')
@@ -538,7 +543,9 @@ def pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, P
     print "Push exam to destination (no exam found at destination). " 
     print "cmd -> " + cmd
     print 'Now Begin push ....' ;
-    lines = os.system(cmd)
+    p1 = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
+    p1.wait()
+    
     print "This Exam is on archived succesfully."
     
     #########################Loop for iExamPair ####################################
@@ -591,7 +598,7 @@ def check_push(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, 
     ListOfSeriesID = []
     count = 0
     match = 0
-    images_in_series = 0
+
     
     while ( line ) : 
         if '(0008,0020) DA [' in line:    #SerieDate
@@ -768,10 +775,12 @@ if __name__ == '__main__':
                 
                 # Call each one of these functions
                 # 1) check push StudyId/AccessionN pair from pacs
-                pushed_flag = check_push(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN) 
-                
+                pushed_flag = True #= check_push(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN) 
+                                
                 print "Images correctly pushed to MRI_MARTEL?"
                 print pushed_flag
+                
+                update_table(PatientID, StudyID, AccessionN) 
                 
                 # 2) Repush StudyId/AccessionN pair if not found
                 if not pushed_flag:

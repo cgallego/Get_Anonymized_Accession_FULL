@@ -37,9 +37,14 @@ def update_table(PatientID, StudyID, accession):
     exam_loc=data_loc+'/'+accessnum
     query.queries(accessnum)  
     
-    SQL.run_code(accessnum, exam_loc)
     try:
         SQL.run_code(accessnum, exam_loc)
+        try:
+            if os.path.isdir(exam_loc):
+                shutil.rmtree(exam_loc)    #os.rmdir(StudyNo)    #remove    # removedirs
+        except ValueError:
+            print "Deleting a Directory is problematic."    
+            
     except Exception as e:
         os.chdir(program_loc)
         fil=open('Errors.txt','a')
@@ -47,6 +52,7 @@ def update_table(PatientID, StudyID, accession):
         fil.close()
         print "Error. Please check Errors.txt for more details."
     return
+    
     
 def get_only_filesindirectory(mydir):
      return [name for name in os.listdir(mydir) 
@@ -608,7 +614,9 @@ def pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, P
     print "Push exam to destination (no exam found at destination). " 
     print "cmd -> " + cmd
     print 'Now Begin push ....' ;
-    lines = os.system(cmd)
+    p1 = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
+    p1.wait()
+    
     print "This Exam is on archived succesfully."
     
     #########################Loop for iExamPair ####################################
@@ -669,10 +677,10 @@ if __name__ == '__main__':
                 
                 # Call each one of these functions
                 # 1) Pull StudyId/AccessionN pair from pacs
-                #check_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
+                check_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
                     
                 # 2) Annonimize StudyId/AccessionN pair from pacs
-                #pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
+                pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
                                 
                 # 3) Warite to Series/Level table in biomatrix 
                 #exam_loc = program_loc+os.sep+str(StudyID)+os.sep+str(AccessionN)
