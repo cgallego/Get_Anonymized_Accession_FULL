@@ -775,7 +775,7 @@ if __name__ == '__main__':
                 
                 # Call each one of these functions
                 # 1) check push StudyId/AccessionN pair from pacs
-                pushed_flag = True #= check_push(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN) 
+                pushed_flag =True #= check_push(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN) 
                                 
                 print "Images correctly pushed to MRI_MARTEL?"
                 print pushed_flag
@@ -784,7 +784,7 @@ if __name__ == '__main__':
                 
                 # 2) Repush StudyId/AccessionN pair if not found
                 if not pushed_flag:
-                    pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
+                    #pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, PatientID, StudyID, AccessionN)
                                 
                     # 3) Warite to Series/Level table in biomatrix 
                     update_table(PatientID, StudyID, AccessionN) 

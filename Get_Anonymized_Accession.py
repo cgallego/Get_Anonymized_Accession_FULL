@@ -7,7 +7,8 @@ import glob ##Unix style pathname pattern expansion
 import time
 import shlex, subprocess
 import SQL, query
-from dictionaries import data_loc, program_loc, my_aet, hostID, local_port, clinical_aet, clinical_IP, clinical_port, remote_aet, remote_IP, remote_port
+from dictionaries import data_loc, program_loc, my_aet, hostID, local_port, clinical_aet, clinical_IP, clinical_port, remote_aet, remote_IP, remote_port, annotrevealer_loc
+import annot
 
 print '''
 -----------------------------------------------------------
@@ -599,11 +600,17 @@ def pull_pacs(path_rootFolder, remote_aet, remote_port, remote_IP, local_port, P
         writeSortedAnonFile.writelines(outlines)
         # Do things with fileh here
     finally:
-        writeSortedAnonFile.close() 
-            
+        writeSortedAnonFile.close()       
     
     ###################################################################
-    # 5-Part: Finally Pushed annonimized files to destination      #
+    # 5-Part: Reveal annotations                                      #
+    ###################################################################
+    exam_loc = path_rootFolder+os.sep+str(StudyID)+os.sep+str(AccessionN)
+    print exam_loc
+    annot.list_ann(exam_loc, annotrevealer_loc, False)   
+    
+    ###################################################################
+    # 6-Part: Finally Pushed annonimized files to destination      #
     # This is used to compare with pulled Dicom Files.                #
     # Finallly sort anonnimized files                              #
     ###################################################################

@@ -21,6 +21,7 @@ clinical_port='104'
 
 program_loc='Z:\Cristina\Pipeline4Archive\Get_Anonymized_Accession_FULL'
 data_loc='Z:\Cristina\Pipeline4Archive\Get_Anonymized_Accession_FULL\querydata_Database'
+annotrevealer_loc='Z:\Cristina\Pipeline4Archive\Get_Anonymized_Accession_FULL\Annotrevealer\Annotrevealer_log.txt'
 
 biomatrix_user='biomatrix_ruser_mri_cad'
 biomatrix_password='bi0matrix4mricadSTUDY'
